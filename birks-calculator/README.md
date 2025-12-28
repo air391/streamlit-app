@@ -9,8 +9,9 @@ This application helps physicists and researchers analyze the non-linear light r
 ## Features
 
 - **Data Input Options:**
-  - Load pre-configured datasets (Alpha in GAGG, Proton in NaI)
-  - Upload custom SRIM output files
+  - Load pre-configured datasets (Alpha in GAGG, Proton in GAGG)
+  - Paste SRIM data directly into a text box
+  - Upload custom SRIM output files (.txt)
 
 - **Forward Calculation:**
   - Input: Particle energy + Birks constant
@@ -46,7 +47,10 @@ birks-calculator/
 ├── app.py              # Main Streamlit application
 ├── srim_parser.py      # SRIM file parsing utilities
 ├── physics.py          # Physics calculations (Birks' Law)
-├── presets.json        # Pre-loaded SRIM datasets
+├── presets.json        # Metadata for pre-loaded datasets
+├── data/               # CSV files with SRIM stopping power data
+│   ├── alpha_in_gagg.csv
+│   └── proton_in_gagg.csv
 └── README.md           # This file
 ```
 

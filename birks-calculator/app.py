@@ -31,7 +31,7 @@ st.set_page_config(
 
 
 def load_presets():
-    """Load preset SRIM data from JSON file."""
+    """Load preset SRIM data metadata from JSON file."""
     preset_file = Path(__file__).parent / "presets.json"
     try:
         with open(preset_file, 'r') as f:
@@ -47,11 +47,16 @@ def load_presets():
         return {}
 
 
-def create_dataframe_from_preset(preset_data):
-    """Convert preset JSON data to DataFrame."""
-    data_points = preset_data['data_points']
-    df = pd.DataFrame(data_points, columns=['Energy_MeV', 'dE_dx'])
-    return df
+def load_dataframe_from_csv(csv_path: str) -> pd.DataFrame:
+    """Load stopping power data from CSV file."""
+    base_dir = Path(__file__).parent
+    full_path = base_dir / csv_path
+    try:
+        df = pd.read_csv(full_path)
+        return df
+    except Exception as e:
+        st.error(f"Error loading CSV file {csv_path}: {str(e)}")
+        return None
 
 
 def plot_stopping_power(df, title="Stopping Power vs Energy"):
@@ -97,7 +102,7 @@ def main():
     
     data_source = st.sidebar.radio(
         "Select Data Source:",
-        ["Load Preset", "Upload SRIM File"]
+        ["Load Preset", "Upload SRIM Data"]
     )
     
     df = None
@@ -105,6 +110,11 @@ def main():
     
     if data_source == "Load Preset":
         presets = load_presets()
+        
+        if not presets:
+            st.warning("No presets available")
+            st.stop()
+        
         preset_names = list(presets.keys())
         
         selected_preset = st.sidebar.selectbox(
@@ -115,31 +125,64 @@ def main():
         if selected_preset:
             preset_data = presets[selected_preset]
             description = preset_data['description']
-            df = create_dataframe_from_preset(preset_data)
+            csv_path = preset_data.get('data_file', '')
             
-            st.sidebar.success(f"✓ Loaded: {selected_preset}")
-            st.sidebar.info(f"📝 {description}")
-            st.sidebar.metric("Data Points", len(df))
+            df = load_dataframe_from_csv(csv_path)
+            
+            if df is not None:
+                st.sidebar.success(f"✓ Loaded: {selected_preset}")
+                st.sidebar.info(f"📝 {description}")
+                st.sidebar.metric("Data Points", len(df))
     
-    else:  # Upload SRIM File
-        uploaded_file = st.sidebar.file_uploader(
-            "Upload SRIM Output File (.txt)",
-            type=['txt'],
-            help="Upload a SRIM output file containing Energy and dE/dx columns"
+    else:  # Upload SRIM Data
+        st.sidebar.subheader("Input Method")
+        
+        input_method = st.sidebar.radio(
+            "Choose input method:",
+            ["Paste SRIM Text", "Upload SRIM File"],
+            label_visibility="collapsed"
         )
         
-        if uploaded_file is not None:
-            try:
-                content = uploaded_file.read().decode('utf-8')
-                df = parse_srim_text(content)
-                validate_dataframe(df)
-                
-                st.sidebar.success(f"✓ File parsed successfully!")
-                st.sidebar.metric("Data Points", len(df))
-                
-            except Exception as e:
-                st.sidebar.error(f"Error parsing file: {str(e)}")
-                st.stop()
+        if input_method == "Paste SRIM Text":
+            srim_text = st.sidebar.text_area(
+                "Paste SRIM Output:",
+                height=200,
+                help="Paste the SRIM data table (including header and data rows)"
+            )
+            
+            if st.sidebar.button("Parse SRIM Data"):
+                if srim_text.strip():
+                    try:
+                        df = parse_srim_text(srim_text)
+                        validate_dataframe(df)
+                        
+                        st.sidebar.success(f"✓ Data parsed successfully!")
+                        st.sidebar.metric("Data Points", len(df))
+                        
+                    except Exception as e:
+                        st.sidebar.error(f"Error parsing data: {str(e)}")
+                else:
+                    st.sidebar.warning("Please paste SRIM data first")
+        
+        else:  # Upload SRIM File
+            uploaded_file = st.sidebar.file_uploader(
+                "Upload SRIM Output File (.txt)",
+                type=['txt'],
+                help="Upload a SRIM output file containing Energy and dE/dx columns"
+            )
+            
+            if uploaded_file is not None:
+                try:
+                    content = uploaded_file.read().decode('utf-8')
+                    df = parse_srim_text(content)
+                    validate_dataframe(df)
+                    
+                    st.sidebar.success(f"✓ File parsed successfully!")
+                    st.sidebar.metric("Data Points", len(df))
+                    
+                except Exception as e:
+                    st.sidebar.error(f"Error parsing file: {str(e)}")
+                    st.stop()
     
     # Main content area
     if df is None:
