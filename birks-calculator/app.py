@@ -13,8 +13,13 @@ import json
 from pathlib import Path
 
 # Import local modules
-from srim_parser import parse_srim_text, validate_dataframe
-from physics import BirksCalculator
+try:
+    from srim_parser import parse_srim_text, validate_dataframe
+    from physics import BirksCalculator
+except ImportError:
+    # For package-style imports
+    from .srim_parser import parse_srim_text, validate_dataframe
+    from .physics import BirksCalculator
 
 
 # Page configuration
@@ -28,8 +33,18 @@ st.set_page_config(
 def load_presets():
     """Load preset SRIM data from JSON file."""
     preset_file = Path(__file__).parent / "presets.json"
-    with open(preset_file, 'r') as f:
-        return json.load(f)
+    try:
+        with open(preset_file, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        st.error(f"Presets file not found: {preset_file}")
+        return {}
+    except json.JSONDecodeError as e:
+        st.error(f"Error parsing presets file: {str(e)}")
+        return {}
+    except Exception as e:
+        st.error(f"Error loading presets: {str(e)}")
+        return {}
 
 
 def create_dataframe_from_preset(preset_data):

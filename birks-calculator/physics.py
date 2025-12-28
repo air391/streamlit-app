@@ -41,6 +41,9 @@ class BirksCalculator:
         df : pd.DataFrame
             DataFrame with 'Energy_MeV' and 'dE_dx' columns
         """
+        if len(df) == 0:
+            raise ValueError("Cannot initialize calculator with empty DataFrame")
+        
         # Ensure the dataframe is sorted by energy
         df = df.sort_values('Energy_MeV').reset_index(drop=True)
         
@@ -118,7 +121,13 @@ class BirksCalculator:
             # Avoid division by zero or negative denominators
             denom = 1.0 + kb_mm_mev * dedx_val
             if denom <= 0:
-                return 0.0
+                # This is an unphysical condition - either negative stopping power
+                # or extremely large Birks constant
+                raise ValueError(
+                    f"Unphysical condition at E={E:.4f} MeV: "
+                    f"denominator = {denom:.4e} (dE/dx={dedx_val:.2f}, kB={kb_mm_mev:.6f}). "
+                    f"Check your data and Birks constant value."
+                )
             return 1.0 / denom
         
         # Integrate from 0 to initial_energy
