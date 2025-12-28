@@ -97,6 +97,12 @@ def main():
     where $k_B$ is the Birks constant describing the quenching effect.
     """)
     
+    # Initialize session state for storing parsed data
+    if 'parsed_df' not in st.session_state:
+        st.session_state.parsed_df = None
+    if 'data_source_type' not in st.session_state:
+        st.session_state.data_source_type = None
+    
     # Sidebar for data input
     st.sidebar.header("Data Input")
     
@@ -107,6 +113,11 @@ def main():
     
     df = None
     description = ""
+    
+    # Clear parsed data if data source type changes
+    if st.session_state.data_source_type != data_source:
+        st.session_state.parsed_df = None
+        st.session_state.data_source_type = data_source
     
     if data_source == "Load Preset":
         presets = load_presets()
@@ -153,16 +164,26 @@ def main():
             if st.sidebar.button("Parse SRIM Data"):
                 if srim_text.strip():
                     try:
-                        df = parse_srim_text(srim_text)
-                        validate_dataframe(df)
+                        parsed_df = parse_srim_text(srim_text)
+                        validate_dataframe(parsed_df)
+                        
+                        # Store in session state
+                        st.session_state.parsed_df = parsed_df
                         
                         st.sidebar.success(f"✓ Data parsed successfully!")
-                        st.sidebar.metric("Data Points", len(df))
+                        st.sidebar.metric("Data Points", len(parsed_df))
                         
                     except Exception as e:
                         st.sidebar.error(f"Error parsing data: {str(e)}")
+                        st.session_state.parsed_df = None
                 else:
                     st.sidebar.warning("Please paste SRIM data first")
+            
+            # Retrieve from session state
+            if st.session_state.parsed_df is not None:
+                df = st.session_state.parsed_df
+                st.sidebar.success(f"✓ Data parsed successfully!")
+                st.sidebar.metric("Data Points", len(df))
         
         else:  # Upload SRIM File
             uploaded_file = st.sidebar.file_uploader(
