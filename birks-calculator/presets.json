@@ -1,0 +1,18 @@
+{
+  "Alpha in GAGG (SRIM 2013)": {
+    "description": "Helium ions in Gd3Al2Ga3O12, density 6.63 g/cm3",
+    "particle": "He-4 (Alpha)",
+    "target": "GAGG (Gd3Al2Ga3O12)",
+    "density": "6.63 g/cm3",
+    "stopping_unit": "MeV/mm",
+    "data_file": "data/alpha_in_gagg.csv"
+  },
+  "Proton in GAGG (SRIM 2013)": {
+    "description": "Hydrogen ions (protons) in Gd3Al2Ga3O12, density 6.63 g/cm3",
+    "particle": "H-1 (Proton)",
+    "target": "GAGG (Gd3Al2Ga3O12)",
+    "density": "6.63 g/cm3",
+    "stopping_unit": "MeV/mm",
+    "data_file": "data/proton_in_gagg.csv"
+  }
+}
