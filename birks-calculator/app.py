@@ -184,6 +184,16 @@ def main():
                 df = st.session_state.parsed_df
                 st.sidebar.success(f"✓ Data parsed successfully!")
                 st.sidebar.metric("Data Points", len(df))
+                
+                # Add CSV download button
+                csv_data = df.to_csv(index=False)
+                st.sidebar.download_button(
+                    label="📥 Download as CSV",
+                    data=csv_data,
+                    file_name="srim_data.csv",
+                    mime="text/csv",
+                    help="Download the parsed SRIM data in CSV format"
+                )
         
         else:  # Upload SRIM File
             uploaded_file = st.sidebar.file_uploader(
@@ -200,6 +210,16 @@ def main():
                     
                     st.sidebar.success(f"✓ File parsed successfully!")
                     st.sidebar.metric("Data Points", len(df))
+                    
+                    # Add CSV download button
+                    csv_data = df.to_csv(index=False)
+                    st.sidebar.download_button(
+                        label="📥 Download as CSV",
+                        data=csv_data,
+                        file_name="srim_data.csv",
+                        mime="text/csv",
+                        help="Download the parsed SRIM data in CSV format"
+                    )
                     
                 except Exception as e:
                     st.sidebar.error(f"Error parsing file: {str(e)}")
