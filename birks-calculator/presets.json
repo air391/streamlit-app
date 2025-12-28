@@ -14,5 +14,21 @@
     "density": "6.63 g/cm3",
     "stopping_unit": "MeV/mm",
     "data_file": "data/proton_in_gagg.csv"
+  },
+  "Proton in CLYC (SRIM 2013)": {
+    "description": "Hydrogen ions (protons) in CLYC, density 3.31 g/cm3",
+    "particle": "H-1 (Proton)",
+    "target": "CLYC (Cs2LiYCl6:Ce)",
+    "density": "3.31 g/cm3",
+    "stopping_unit": "MeV/mm",
+    "data_file": "data/proton_in_clyc.csv"
+  },
+  "Alpha in CLYC (SRIM 2013)": {
+    "description": "Helium ions (alphas) in CLYC, density 3.31 g/cm3",
+    "particle": "He-4 (Alpha)",
+    "target": "CLYC (Cs2LiYCl6:Ce)",
+    "density": "3.31 g/cm3",
+    "stopping_unit": "MeV/mm",
+    "data_file": "data/alpha_in_clyc.csv"
   }
 }
